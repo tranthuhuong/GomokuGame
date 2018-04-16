@@ -100,6 +100,7 @@ public class BoardClient {
             this.player=0;
 
         }
+        view.invalidate();
 
     }
     public int getColIndex(int x,View view){

@@ -20,19 +20,21 @@ import javafx.util.Callback;
 public class MatchThread extends Thread{
     private PlayerClient playerA;
     private PlayerClient playerB; 
-    private DataInputStream dataInputStream;
-    private DataOutputStream dataOutputStream;
+    private DataInputStream dataInputStreama;
+    private DataOutputStream dataOutputStreama;
     private ClientPlayerInBoard1 pA;
     private ClientPlayerInBoard1 pB;
-    private String message,ms="";
-    String msgToSend = "";
+    public String message,ms="";
+    public void setMess(String m){
+        this.message=m;
+    }
     String msgLog="";
     GomokuBoard board=new GomokuBoard(8, 8);
     public MatchThread(PlayerClient playerA, PlayerClient playerB) {
         this.playerA = playerA;
         this.playerB = playerB;
-        dataInputStream = null;
-        dataOutputStream = null;
+        dataInputStreama = null;
+        dataOutputStreama = null;
         message = "";
         pA=new ClientPlayerInBoard1(playerA);
         pB=new ClientPlayerInBoard1(playerB);
@@ -44,12 +46,6 @@ public class MatchThread extends Thread{
         pA.start();
         pB.start();
         while (true) {
-            
-            if(ms.length()>1){                
-                message=ms;
-                
-                
-            }
             if(!message.trim().equals("")){
                  broadcastMsg(message);
                  System.out.println(message);
@@ -65,7 +61,7 @@ public class MatchThread extends Thread{
         
     }
     private String checkBoard(int col,int row,int player){
-        String status="wait";
+        String status="continue";
         
         //neus đi đc
         if(board.checkStep(col,row)){
@@ -82,7 +78,7 @@ public class MatchThread extends Thread{
         //nếu đã có người đi
         
         else{
-            status="None";
+            status="non";
             return status;
         }
         return status;
@@ -91,7 +87,7 @@ public class MatchThread extends Thread{
     Callback c; 
     Socket socket;
     PlayerClient playerClient;
-    
+    String msgToSend = "";
 
     ClientPlayerInBoard1(PlayerClient client) {
         playerClient = client;
@@ -110,8 +106,10 @@ public class MatchThread extends Thread{
                 dataInputStream = new DataInputStream(socket.getInputStream());
                 dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
-                msgToSend="You're " + playerClient.getRolePlayer() + "\n";
-                
+                this.msgToSend="You're " + playerClient.getRolePlayer();
+                dataOutputStream.writeUTF(msgToSend);
+                dataOutputStream.flush();
+                this.msgToSend="";
                 while (true) {
                     if (dataInputStream.available() > 0) {
                         msgLog = playerClient.getRolePlayer()+" - "+dataInputStream.readUTF();
@@ -125,12 +123,9 @@ public class MatchThread extends Thread{
                         String check=checkBoard(col,row,p);
                         //System.out.println(message);
                         
-                        msgToSend=p+" - "+col+" - "+row+" - "+check;
-                        //this.sendMsg(msgToSend);
-                        //pA.setMsLog("");
-                        ms=msgToSend;
-                        //msgToSend="";
+                        ms=p+" - "+col+" - "+row+" - "+check;
                         msgLog="";
+                        broadcastMsg(ms);
                        // broadcastMsg(playerClient.getRolePlayer() + ": " + newMsg);
                     }
                     
