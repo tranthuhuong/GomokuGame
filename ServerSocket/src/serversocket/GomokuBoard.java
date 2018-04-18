@@ -90,4 +90,23 @@ public class GomokuBoard implements Serializable{
     public void setPlayer(int player) {
         this.player = player;
     }
+    public String getBoardToString(){
+        String str="";
+        for (int i = 0; i < rowQty; i++) {
+            for (int j = 0; j < colQty; j++) {
+                switch (board[i][j]) {
+                    case -1:
+                        str+="-";
+                        break;
+                    case 0:
+                        str+="0";
+                        break;
+                    default:
+                        str+="1";
+                        break;
+                }
+            }
+        }
+        return str;
+    }
 }

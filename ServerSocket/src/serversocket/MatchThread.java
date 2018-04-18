@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.util.Callback;
@@ -25,6 +26,9 @@ public class MatchThread extends Thread{
     private ClientPlayerInBoard1 pA;
     private ClientPlayerInBoard1 pB;
     public String message,ms="";
+    public  DB db;
+    String check="";
+    public Boolean gameOver;//cờ thắng
     public void setMess(String m){
         this.message=m;
     }
@@ -35,7 +39,9 @@ public class MatchThread extends Thread{
         this.playerB = playerB;
         dataInputStreama = null;
         dataOutputStreama = null;
+        db=new DB();
         message = "";
+        gameOver=false;
         pA=new ClientPlayerInBoard1(playerA);
         pB=new ClientPlayerInBoard1(playerB);
         
@@ -45,19 +51,23 @@ public class MatchThread extends Thread{
     public void run() {
         pA.start();
         pB.start();
-        while (true) {
-            if(!message.trim().equals("")){
-                 broadcastMsg(message);
-                 System.out.println(message);
-                 message="";
-            }
-           
-        }
-        //broadcastMsg(message);
+        //db.getData();
+       
+       
     }
     private void broadcastMsg(String msg) {
          pA.sendMsg(msg);
          pB.sendMsg(msg);
+        if(check.equals("win")) {
+             gameOver=true;
+          String strBoard=board.getBoardToString();
+        System.out.println("Dang Luu");
+        try {
+            db.insertDB(playerA.getSocket().getInetAddress()+"", playerB.getSocket().getInetAddress()+"",strBoard);
+        } catch (SQLException ex) {
+             System.out.println("Dang Luu khong đc");
+        }
+         }
         
     }
     private String checkBoard(int col,int row,int player){
@@ -110,7 +120,7 @@ public class MatchThread extends Thread{
                 dataOutputStream.writeUTF(msgToSend);
                 dataOutputStream.flush();
                 this.msgToSend="";
-                while (true) {
+                while (!gameOver) {
                     if (dataInputStream.available() > 0) {
                         msgLog = playerClient.getRolePlayer()+" - "+dataInputStream.readUTF();
                         
@@ -120,13 +130,11 @@ public class MatchThread extends Thread{
                         if(str[0].equals("PLAYERA")) p=0; else p=1;
                         int col=Integer.parseInt(str[1]);
                         int row=Integer.parseInt(str[2]);
-                        String check=checkBoard(col,row,p);
-                        //System.out.println(message);
+                        check=checkBoard(col,row,p);
                         
                         ms=p+" - "+col+" - "+row+" - "+check;
                         msgLog="";
                         broadcastMsg(ms);
-                       // broadcastMsg(playerClient.getRolePlayer() + ": " + newMsg);
                     }
                     
                     if (!msgToSend.equals("")) {

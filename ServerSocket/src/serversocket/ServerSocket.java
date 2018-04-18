@@ -7,11 +7,14 @@ package serversocket;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -22,7 +25,7 @@ public class ServerSocket {
     //pott kết nối
    
     static final int SocketServerPORT = 8888;
-    static final int TimeRandom = 30;
+    static final int TimeRandom = 10;
 
     String msgLog = "";
 
@@ -31,7 +34,10 @@ public class ServerSocket {
     java.net.ServerSocket serverSocket;
 
     public static void main(String[] args) {
+        
         ServerSocket myServerSocket = new ServerSocket();
+        //DB db=new DB();
+        //db.getData();
     }
 
     public ServerSocket() {
@@ -57,7 +63,7 @@ public class ServerSocket {
         @Override
         public void run() {
             Socket socket = null;
-            excutor.schedule(task, TimeRandom, TimeUnit.SECONDS);
+            
             try {
                 serverSocket = new java.net.ServerSocket(SocketServerPORT);
                 System.out.println(" : "
@@ -68,7 +74,7 @@ public class ServerSocket {
                     System.out.println(socket.getInetAddress());
                     PlayerClient client = new PlayerClient(socket);
                     userList.add(client);
-                    
+                    excutor.schedule(task, TimeRandom, TimeUnit.SECONDS);
                 }
 
             } catch (IOException e) {
@@ -114,5 +120,6 @@ public class ServerSocket {
 
 
     }
+   
 
 }

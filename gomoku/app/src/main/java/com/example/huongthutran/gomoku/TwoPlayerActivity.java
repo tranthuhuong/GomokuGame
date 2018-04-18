@@ -1,13 +1,18 @@
 package com.example.huongthutran.gomoku;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -23,7 +28,8 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class TwoPlayerActivity extends AppCompatActivity {
-    private ImageView imgView;
+    private ImageView imgView,imgPlayer;
+    private TextView tvNotify;
     private BoardClient boardClient;
     private Socket socket;
     private Scanner scanner;
@@ -31,14 +37,20 @@ public class TwoPlayerActivity extends AppCompatActivity {
     private int p=0;//hiển thị thằng đang đc đánh
     private String msgLog="";
     private int flag=-1; //nếu -1 không đc đi=> dang chờ đối phương đánh, 1 đc đi
+    private int bitmapWidth=800;
+    private int bitmapHeight=800;
+    private boolean isGameOver=false;
+    private int colQuantity=8;
+    private int rowQuantity=8;
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_two_player);
         imgView=findViewById(R.id.imgViewGomoku2);
-
-        boardClient = new BoardClient(getApplicationContext(), 800,800,8,8);
+        imgPlayer=findViewById(R.id.imgPlaer);
+        tvNotify=findViewById(R.id.tvNotify);
+        boardClient = new BoardClient(getApplicationContext(), bitmapWidth,bitmapHeight,colQuantity,rowQuantity);
         boardClient.init();
 
         imgView.setImageBitmap(boardClient.drawBoard());
@@ -55,6 +67,10 @@ public class TwoPlayerActivity extends AppCompatActivity {
                     }
                     int colIndex=boardClient.getColIndex((int)motionEvent.getX(),view);
                     int rowIndex=boardClient.getRowIndex((int)motionEvent.getY(),view);
+                    if(colIndex<0||colIndex>colQuantity-1||rowIndex<0||rowIndex>rowQuantity-1){
+                        Toast.makeText(TwoPlayerActivity.this,"Touch in Board,Please!",Toast.LENGTH_SHORT).show();
+                        return  true;
+                    }
                     clientThread.sendMsg(colIndex+" - "+rowIndex);
                     imgView.invalidate();
                     return true;
@@ -63,11 +79,26 @@ public class TwoPlayerActivity extends AppCompatActivity {
 
             }
         });
+
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        if ((keyCode == KeyEvent.KEYCODE_BACK))
+        {
+
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
     void resetView(){
-
+        boardClient.init();
+        imgPlayer.setImageResource(R.drawable.player);
+        tvNotify.setText("Connect...");
+        player=0;
+        p=0;
+        flag=-1;
     }
-
 
     private class ClientThread extends Thread {
 
@@ -109,6 +140,13 @@ public class TwoPlayerActivity extends AppCompatActivity {
                     public void run() {
                         imgView.invalidate();
                         Toast.makeText(TwoPlayerActivity.this,msgLog,Toast.LENGTH_LONG).show();
+                        if(player==0){
+                            imgPlayer.setImageResource(R.drawable.o_tick);
+                            tvNotify.setText(msgLog);
+                        } else  {
+                            imgPlayer.setImageResource(R.drawable.x_tick);
+                            tvNotify.setText(msgLog);
+                        }
                     }
                 });
 
@@ -151,21 +189,15 @@ public class TwoPlayerActivity extends AppCompatActivity {
                                 disconnect();
                                 break;
                             case "continue":
-                                /*if(p==player) flag=-1;
-                                else flag=1;*/
                                 flag=flag*(-1);
                                 updateStep(col,row,p,"");
                                 break;
                         }
-
-
                     }
-
                     if(!msgToSend.equals("")){
                         dataOutputStream.writeUTF(msgToSend);
                         dataOutputStream.flush();
                         msgToSend = "";
-
                     }
                     dataOutputStream.flush();
                 }
@@ -205,7 +237,6 @@ public class TwoPlayerActivity extends AppCompatActivity {
                     try {
                         dataOutputStream.close();
                     } catch (IOException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
@@ -214,7 +245,6 @@ public class TwoPlayerActivity extends AppCompatActivity {
                     try {
                         dataInputStream.close();
                     } catch (IOException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
@@ -255,5 +285,6 @@ public class TwoPlayerActivity extends AppCompatActivity {
             goOut = true;
         }
     }
+
 }
 
