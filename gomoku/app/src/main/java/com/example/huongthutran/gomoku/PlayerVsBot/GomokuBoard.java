@@ -34,7 +34,7 @@ public class GomokuBoard {
     private int bitmapWidth, bitmapHeight, colQty,rowQty;
     private List<Line> lines;
     private Negamax negamax;
-    private int need = 3;
+    private int qltWin = 5;
     private int winner = -1;
     private Move tempMove;
 
@@ -121,11 +121,7 @@ public class GomokuBoard {
     }
 
     public boolean onTouchBot(View view, MotionEvent motionEvent) {
-        int cellWidth = 200;
-        int cellHeight = 200;
-        int colIndex = (int) (motionEvent.getX() / cellWidth);
-        int rowIndex = (int) ((motionEvent.getY()-((view.getHeight()-view.getWidth())/2)) / cellHeight );
-        Log.d("test",colIndex+ " ,"+rowIndex);
+
         int count = getCurrentDept();
         final int currentDetp = rowQty*colQty - count;
 
@@ -276,7 +272,7 @@ public class GomokuBoard {
             }else if(board[row][i] != -1){
                 dem++;
             }
-            if (dem == need) {
+            if (dem == qltWin) {
                 winner = board[row][i];
                 return true;
             }
@@ -292,7 +288,7 @@ public class GomokuBoard {
             }else if(board[i][col] != -1){
                 dem++;
             }
-            if (dem == need) {
+            if (dem == qltWin) {
                 winner = board[i][col];
                 return true;
             }
@@ -317,7 +313,7 @@ public class GomokuBoard {
             if (board[a + i][b + i] == board[a + i + 1][b + i + 1] && board[a + i][b + i] != -1) {
                 count++;
 
-                if (count == need) {
+                if (count == qltWin) {
                     winner = board[a + i][b + i];
                     return true;
                 }
@@ -346,7 +342,7 @@ public class GomokuBoard {
             if (board[a + i][b - i] == board[a + i + 1][b - i - 1] && board[a + i][b - i] != -1) {
                 count++;
 
-                if (count == need) {
+                if (count == qltWin) {
                     winner = board[a + i][b - i];
                     return true;
                 }
@@ -420,5 +416,31 @@ public class GomokuBoard {
 
     public void setBitmapHeight(int bitmapHeight) {
         this.bitmapHeight = bitmapHeight;
+    }
+
+    boolean checkOneSquare(int x,int y,int player){
+        for(int i=x;i<x+qltWin;i++){
+            if(board[i][y]==player && board[i][y+1]==player && board[i][y+2]==player && board[i][y+3]==player && board[i][y+4]==player)
+                return true;
+        }
+        for(int j=y;j<y+qltWin;j++){
+            if(board[x][j]==player && board[x+1][j]==player && board[x+2][j]==player && board[x+3][j]==player && board[x+4][j]==player)
+                return true;
+        }
+        if(board[x][y]==player &&board[x+1][y+1]==player && board[x+2][y+2]==player && board[x+3][y+3]==player &&board[x+4][y+4]==player)
+            return true;
+        if(board[x+4][y]==player &&board[x+3][y+1]==player && board[x+2][y+2]==player && board[x+1][y+3]==player &&board[x+0][y+4]==player )
+            return true;
+
+        return false;
+    }
+    boolean checkWin1(int p){
+
+        for(int i = 0 ;i <= colQty-qltWin ; i++){
+            for(int j=0;j<=rowQty-qltWin;j++){
+                if(checkOneSquare(i,j,p)) return true;
+            }
+        }
+        return false;
     }
 }

@@ -55,19 +55,25 @@ public class MatchThread extends Thread{
        
        
     }
-    private void broadcastMsg(String msg) {
+    private void broadcastMsg(String msg) throws IOException {
          pA.sendMsg(msg);
          pB.sendMsg(msg);
-        if(check.equals("win")) {
-             gameOver=true;
-          String strBoard=board.getBoardToString();
-        System.out.println("Dang Luu");
+        if(check.equals("win")||check.equals("draw")) {
         try {
-            db.insertDB(playerA.getSocket().getInetAddress()+"", playerB.getSocket().getInetAddress()+"",strBoard);
-        } catch (SQLException ex) {
-             System.out.println("Dang Luu khong đc");
+            gameOver=true;
+            String strBoard=board.getBoardToString();
+            System.out.println("Saving");
+            try {
+                db.insertDB(playerA.getSocket().getInetAddress()+"", playerB.getSocket().getInetAddress()+"",strBoard);
+            } catch (SQLException ex) {
+                System.out.println("Can't save");
+            }
+           
+        } catch (Exception ex) {
+                 Logger.getLogger(MatchThread.class.getName()).log(Level.SEVERE, null, ex);
         }
-         }
+        }
+        
         
     }
     private String checkBoard(int col,int row,int player){
@@ -78,11 +84,16 @@ public class MatchThread extends Thread{
             //ghi 1 bước đi
             board.setStep(col,row,player);
             //kiểm tra thắng
-            
-            if(board.checkWin(player)){
-               status="win"; 
+            if(board.isGameOver()){
+                int winner=board.evaluate(player);
+                if(winner==1){
+                    status="win"; 
+                }
+                else if(winner==0){
+                    status="draw"; 
+                }
             } else {
-               status="continue";
+                 status="continue";
             }
         }
         //nếu đã có người đi
@@ -121,10 +132,11 @@ public class MatchThread extends Thread{
                 dataOutputStream.flush();
                 this.msgToSend="";
                 while (!gameOver) {
+                    //nhận tin nhắn từ client
                     if (dataInputStream.available() > 0) {
                         msgLog = playerClient.getRolePlayer()+" - "+dataInputStream.readUTF();
                         
-                        System.out.print(msgLog);      
+                        System.out.println(msgLog);      
                         String str[]=msgLog.split(" - ");
                         int p=0;
                         if(str[0].equals("PLAYERA")) p=0; else p=1;
@@ -136,7 +148,7 @@ public class MatchThread extends Thread{
                         msgLog="";
                         broadcastMsg(ms);
                     }
-                    
+                    //gửi tin nhắn cho 
                     if (!msgToSend.equals("")) {
                         dataOutputStream.writeUTF(msgToSend);
                         dataOutputStream.flush();

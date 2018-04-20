@@ -52,8 +52,8 @@ public class GomokuBoard implements Serializable{
     }
     boolean checkWin(int p){
        
-        for(int i = 0 ;i < colQty-5 ; i++){
-            for(int j=0;j<rowQty-5;j++){
+        for(int i = 0 ;i <= colQty-5 ; i++){
+            for(int j=0;j<=rowQty-5;j++){
                 if(checkOneSquare(i,j,p)) return true;
             }
         }
@@ -75,7 +75,7 @@ public class GomokuBoard implements Serializable{
         //chưa thắng hoặc còn vị trí để đi=>game chưa kết thúc
         return false;
     }
-    //dánh giá bàn cở, trở về điểm tương ứng v player, boss thắng là 1, boss thua là -1, hòa là 0
+    //dánh giá bàn cờ
     public int  evaluate(int player) {
         if (checkWin(player))
             return 1;

@@ -74,7 +74,7 @@ public class TwoPlayerActivity extends AppCompatActivity {
         });
 
     }
-    @Override
+   /* @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
         if ((keyCode == KeyEvent.KEYCODE_BACK))
@@ -83,7 +83,7 @@ public class TwoPlayerActivity extends AppCompatActivity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
-    }
+    }*/
     void resetView(){
         boardClient.init();
         imgPlayer.setImageResource(R.drawable.player);
@@ -126,8 +126,8 @@ public class TwoPlayerActivity extends AppCompatActivity {
                     player=1;
                     flag=-1;
                 }
-                Log.d("Test",msgLog);
-                Log.d("Test",player+"-"+flag);
+               /* Log.d("Test",msgLog);
+                Log.d("Test",player+"-"+flag);*/
                 TwoPlayerActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -176,10 +176,12 @@ public class TwoPlayerActivity extends AppCompatActivity {
                                 else
                                     updateStep(col,row,p,"YOU LOST!!!!");
                                 disconnect();
+                                flag=-1;
                                 break;
                             case "draw":
                                 updateStep(col,row,p,"DRAW OUT!!!!");
                                 disconnect();
+                                flag=-1;
                                 break;
                             case "continue":
                                 flag=flag*(-1);
@@ -217,7 +219,7 @@ public class TwoPlayerActivity extends AppCompatActivity {
                     }
 
                 });
-            } finally {
+            }  finally {
                 if (socket != null) {
                     try {
                         socket.close();
