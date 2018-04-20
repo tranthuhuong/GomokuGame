@@ -1,4 +1,4 @@
-package com.example.huongthutran.gomoku;
+package com.example.huongthutran.gomoku.PlayerVsPlayer;
 
 import android.content.Intent;
 import android.os.AsyncTask;

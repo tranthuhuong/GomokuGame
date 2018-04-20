@@ -1,4 +1,4 @@
-package com.example.huongthutran.gomoku;
+package com.example.huongthutran.gomoku.PlayerVsPlayer;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -6,8 +6,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.example.huongthutran.gomoku.Line;
+import com.example.huongthutran.gomoku.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +76,7 @@ public class BoardClient {
                     paint
             );
         }
-        playerA = BitmapFactory.decodeResource(context.getResources(),R.drawable.o_tick);
+        playerA = BitmapFactory.decodeResource(context.getResources(), R.drawable.o_tick);
         playerB = BitmapFactory.decodeResource(context.getResources(),R.drawable.x_tick);
 
         return bitmap;
